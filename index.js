@@ -1,6 +1,7 @@
 const inquirer = require("inquirer");
 const jest = require("jest");
-const fs = require("fs")
+const fs = require("fs");
+const { filter } = require("rxjs");
 
 function Logo(shape, color, text, textColor) {
     this.shape = shape;
@@ -13,7 +14,7 @@ function Logo(shape, color, text, textColor) {
   .prompt([
     {
       type: "input",
-      message: "What shape would you like your logo to be? Please use HTML attribute syntax (circle, rect, etc)",
+      message: "What shape would you like your logo to be? Please use XML attribute syntax (circle, rect, etc)",
       name: "shape",
     },
     {
@@ -32,19 +33,23 @@ function Logo(shape, color, text, textColor) {
       name: "textColor",
     },
   ])
-  .then(function userInput(response) {
-  const logo = new Logo(response.shape, response.color, response.text, response.textColor)
-  JSON.stringify(Logo)
-});
-
-async function createSVG() {
-    const input = await userInput()
-    var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-    svg.setAttribute('style', `border: 1px solid black;color: ${Logo.textColor};background-color: ${Logo.color};shape: ${Logo.shape}`);
-    svg.setAttribute('width', '300');
-    svg.setAttribute('height', '200');
-    svg.setAttribute('text', `${Logo.text}`);
-    svg.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:xlink", "http://www.w3.org/1999/xlink");
-    document.body.appendChild(svg);
-    console.log("Check out your new logo!")
-}
+  .then( (response) => {
+    filter(response)
+    fs.writeFile('svg.html', `<!DOCTYPE html>
+  <html lang="en">
+  <head>
+      <meta charset="UTF-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Your New Logo!!</title>
+  </head>
+  <body>
+  <h1>Nice logo!!</h1>
+  <svg x= "50" y = "20" height="300" width="200"><${response.shape} font-color="${response.textColor}" style= "fill: ${response.color};stroke-width: 4;stroke: black" />${response.text}</svg>
+  </body>
+  </html>`, err => {
+    if (err) {
+      console.error(err);
+    }});
+  console.log("Check out your new logo!");
+  });

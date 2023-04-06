@@ -1,7 +1,6 @@
-const inquirer = require("inquirer");
+const inquirer = import {inquirer} from "inquirer";
 const jest = require("jest");
-
-document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+const fs = require("fs")
 
 function Logo(shape, color, text, textColor) {
     this.shape = shape;
@@ -10,7 +9,7 @@ function Logo(shape, color, text, textColor) {
     this.textColor = textColor;
   };
 
-inquirer
+  inquirer
   .prompt([
     {
       type: "input",
@@ -33,8 +32,8 @@ inquirer
       name: "textColor",
     },
   ])
-  .then((response) =>
-    response.json()
-  );
-
-  
+  .then((response) => {
+  const filename = `${response.name.toLowerCase().split(' ').join('')}.svg`;
+  fs.writeFile(filename, JSON.stringify(response, null, '\t'), (err) =>
+  err ? console.log(err) : console.log('Success!')
+)});

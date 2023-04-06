@@ -1,4 +1,4 @@
-const inquirer = import {inquirer} from "inquirer";
+const inquirer = require("inquirer");
 const jest = require("jest");
 const fs = require("fs")
 
@@ -13,7 +13,7 @@ function Logo(shape, color, text, textColor) {
   .prompt([
     {
       type: "input",
-      message: "What shape would you like your logo to be?",
+      message: "What shape would you like your logo to be? Please use HTML attribute syntax (circle, rect, etc)",
       name: "shape",
     },
     {
@@ -32,8 +32,19 @@ function Logo(shape, color, text, textColor) {
       name: "textColor",
     },
   ])
-  .then((response) => {
-  const filename = `${response.name.toLowerCase().split(' ').join('')}.svg`;
-  fs.writeFile(filename, JSON.stringify(response, null, '\t'), (err) =>
-  err ? console.log(err) : console.log('Success!')
-)});
+  .then(function userInput(response) {
+  const logo = new Logo(response.shape, response.color, response.text, response.textColor)
+  JSON.stringify(Logo)
+});
+
+async function createSVG() {
+    const input = await userInput()
+    var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute('style', `border: 1px solid black;color: ${Logo.textColor};background-color: ${Logo.color};shape: ${Logo.shape}`);
+    svg.setAttribute('width', '300');
+    svg.setAttribute('height', '200');
+    svg.setAttribute('text', `${Logo.text}`);
+    svg.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:xlink", "http://www.w3.org/1999/xlink");
+    document.body.appendChild(svg);
+    console.log("Check out your new logo!")
+}
